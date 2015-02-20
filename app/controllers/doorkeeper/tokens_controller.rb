@@ -1,10 +1,13 @@
 module Doorkeeper
   class TokensController < Doorkeeper::ApplicationMetalController
+    include AbstractController::Callbacks
+
+    before_action :authorize_response, only: :create
+
     def create
-      response = authorize_response
-      self.headers.merge! response.headers
-      self.response_body = response.body.to_json
-      self.status        = response.status
+      self.headers.merge! @authorize_response.headers
+      self.response_body = @authorize_response.body.to_json
+      self.status        = @authorize_response.status
     rescue Errors::DoorkeeperError => e
       handle_token_exception e
     end
